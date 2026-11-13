@@ -1,5 +1,3 @@
-# SqlPerformanceApi
-ASP.NET Core and SQL Server performance optimization demonstration.
 # SQL Performance Optimization with ASP.NET Core and EF Core
 
 A practical demonstration of identifying and fixing inefficient Entity Framework Core data access in an ASP.NET Core Web API using SQL Server.
@@ -57,6 +55,25 @@ dotnet user-secrets set "ConnectionStrings:DefaultConnection" "YOUR_CONNECTION_S
 
 ## SQL Execution Plan Analysis
 ### Actual Execution Plan
+
+### Slow Query — Actual Execution Plan
+
+The slow query retrieves all 1,000,000 orders from SQL Server.
+
+Actual execution plan observations:
+
+- Nonclustered Index Scan on `IX_Orders_OrderDate_Id`
+- Actual rows returned: 1,000,000
+- Actual rows read: 1,000,000
+- Logical reads: 3,846
+- Physical reads: 1,180
+- CPU time: 4,964 ms
+- Elapsed time: 17,016 ms
+
+The application retrieves the entire dataset, sorts it in memory,
+and then selects only 50 records.
+
+![Slow SQL Execution Plan](docs/images/slow-execution-plan.png)
 
 The optimized query uses the `IX_Orders_OrderDate_Id` index
 and reads only 50 index entries.
@@ -138,6 +155,36 @@ dotnet run
 GET /api/orders/slow
 GET /api/orders/optimized
 ```
+
+## API Benchmark Results
+
+Both endpoints were tested locally using a PowerShell benchmark script.
+
+### Test environment
+- ASP.NET Core Web API
+- SQL Server
+- 100,000 customers
+- 1,000,000 orders
+- 10 measured runs per endpoint
+- One warm-up request per endpoint
+- Alternating endpoint request order
+
+### Results
+
+| Endpoint | Average | Median | Minimum | Maximum |
+|---|---:|---:|---:|---:|
+| Slow | 3,023.85 ms | 2,581.72 ms | 2,266.86 ms | 7,507.49 ms |
+| Optimized | 7.57 ms | 7.36 ms | 5.84 ms | 11.11 ms |
+
+Based on median response times, the optimized endpoint was approximately **350.8 times faster** in this local test.
+
+### Explanation
+
+The slow implementation loads all one million orders into application memory, sorts them, and returns only 50 records.
+
+The optimized implementation uses SQL-side ordering, projection, and `Take(50)`, allowing SQL Server to retrieve only the required records using a covering index.
+
+**Note:** These are local measurements, not a formal production benchmark. Results depend on hardware, database cache state, runtime conditions, and system load.
 
 ## What This Project Demonstrates
 

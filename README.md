@@ -40,6 +40,21 @@ Relevant index:
 
 This index supports the ordering by `OrderDate` and `Id`.
 
+## Database Setup
+
+To recreate the database locally, run these SQL scripts in SQL Server Management Studio (SSMS), in the following order:
+
+1. `database/01_CreateDatabase.sql` — creates the database and tables.
+2. `database/02_CreateIndexes.sql` — creates the required indexes.
+3. `database/03_SeedData.sql` — inserts 100,000 customers and 1,000,000 orders.
+
+After executing all three scripts, configure the connection string using .NET User Secrets:
+
+```powershell
+dotnet user-secrets init
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "YOUR_CONNECTION_STRING"
+```
+
 ## SQL Execution Plan Analysis
 
 The optimized query generates SQL equivalent to:
@@ -97,7 +112,7 @@ The stopwatch measures controller-side elapsed time and excludes response serial
 
 1. Clone the repository.
 2. Open the project in Visual Studio or your preferred .NET IDE.
-3. Create or configure a SQL Server database named `PerformanceDemo` with the required `Customers` and `Orders` tables, data, and index.
+3. Run the three SQL scripts described in the Database Setup section.
 4. Configure the connection string using .NET User Secrets:
 
 ```powershell

@@ -56,6 +56,12 @@ dotnet user-secrets set "ConnectionStrings:DefaultConnection" "YOUR_CONNECTION_S
 ```
 
 ## SQL Execution Plan Analysis
+### Actual Execution Plan
+
+The optimized query uses the `IX_Orders_OrderDate_Id` index
+and reads only 50 index entries.
+
+![Optimized SQL Execution Plan](docs/images/optimized-execution-plan.png)
 
 The optimized query generates SQL equivalent to:
 
